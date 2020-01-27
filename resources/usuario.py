@@ -1,9 +1,8 @@
 #Controller da API
 from flask_restful import Resource, reqparse
 from models.usuario import UserModel
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 from werkzeug.security import safe_str_cmp
-
 
 atributos = reqparse.RequestParser()
 atributos.add_argument('login', type=str, required=True, help="Não pode ficar em branco")
@@ -18,8 +17,9 @@ class User(Resource):
         if user:
             return user.json()
 
-        return {'message': 'User not found'}, 404
+        return {"message": "User not found"}, 404
 
+    @jwt_required
     def delete(self, user_id):
         
         user = UserModel.find_user(user_id)
@@ -38,11 +38,11 @@ class UserRegister(Resource):
         dados = atributos.parse_args()
 
         if UserModel.find_by_login(dados['login']):
-            return {'message': "Login '{}' already exists.".format(dados['login'])}
+            return {"message": "Login '{}' already exists".format(dados['login'])}
 
         user = UserModel(**dados)
         user.save_user()
-        return {'message': 'User created successfully'}, 201
+        return {"message": "User created successfully"}, 201
 
 class UserLogin(Resource):
 
@@ -53,6 +53,6 @@ class UserLogin(Resource):
         if user and safe_str_cmp(user.senha, dados['senha']):
 
             token = create_access_token(identity=user.user_id)
-            return {'acess_token': token}, 200
+            return {"acess_token": token}, 200
         
-        return {'message': 'User or password is incorrect'}, 401
+        return {"message": "User or password is incorrect"}, 401

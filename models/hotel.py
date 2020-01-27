@@ -21,7 +21,6 @@ class HotelModel(banco.Model):
     @classmethod
     def find_hotel(cls, hotel_id):
 
-
         hotel = cls.query.filter_by(hotel_id=hotel_id).first()
         if hotel:
             return hotel
@@ -33,7 +32,8 @@ class HotelModel(banco.Model):
         banco.session.commit()
 
     def update_hotel(self, nome):
-        self.nome = nome
+        banco.session.update(self)
+        banco.session.commit()
     
     def delete_hotel(self):
         banco.session.delete(self)
