@@ -32,8 +32,7 @@ class HotelModel(banco.Model):
         banco.session.commit()
 
     def update_hotel(self, nome):
-        banco.session.update(self)
-        banco.session.commit()
+        self.nome = nome
     
     def delete_hotel(self):
         banco.session.delete(self)

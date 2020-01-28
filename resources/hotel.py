@@ -47,11 +47,11 @@ class Hotel(Resource):
         hotel_encontrado = HotelModel.find_hotel(hotel_id)
 
         if hotel_encontrado:
-            hotel_encontrado.update_hotel(**dados)
+            hotel_encontrado.update_hotel(dados['nome'])
             hotel_encontrado.save_hotel()
             return hotel_encontrado.json(), 200
 
-        hotel = HotelModel(hotel_id, **dados)
+        hotel = HotelModel(**dados)
 
         try:
             hotel.save_hotel()
