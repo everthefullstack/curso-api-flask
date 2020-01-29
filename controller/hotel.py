@@ -1,12 +1,53 @@
 #Controller da API
 from flask_restful import Resource, reqparse
-from models.hotel import HotelModel
+from model.hotel import HotelModel
 from flask_jwt_extended import jwt_required
+import sqlite3
+
+path_param = reqparse.RequestParser()
+path_param.add_argument('hotel_id', type=str)
+path_param.add_argument('nome', type=str)
+
+
+def nomalize_path_params(hotel_id=None,
+                         nome=None,
+                         **dados):
+
+    if nome:
+        return {'nome': nome}
+    
+    else:
+        return{'message': 'Incorrect consult'}
 
 class Hoteis(Resource):
 
     def get(self):
-        return {"hoteis": [hotel.json() for hotel in HotelModel.query.all()]}
+
+        cursor = sqlite3.connect('banco.db').cursor()
+
+        dados = path_param.parse_args()
+        dados_validos = {chave:dados[chave] for chave in dados if dados[chave] is not None}
+        parametros = nomalize_path_params(**dados_validos)
+
+        if parametros.get('nome'):
+            consulta = "SELECT * FROM hoteis \
+                        WHERE nome = ?"
+            
+            tupla = tuple([parametros[chave] for chave in parametros])
+            print(tupla)
+            resultado = cursor.execute(consulta, tupla)
+        
+        else:
+
+            consulta = "select * from hoteis"
+            resultado = cursor.execute(consulta)
+
+        lista_json = []
+        for linha in resultado:
+            lista_json.append({'hotel_id': linha[0],
+                               'nome': linha[1]})
+
+        return {'result': lista_json}
 
 class Hotel(Resource):
 
